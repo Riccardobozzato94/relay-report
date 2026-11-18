@@ -1,0 +1,6 @@
+name = "relay-report-api"
+main = "worker/index.js"
+compatibility_date = "2026-11-18"
+
+[ai]
+binding = "AI"

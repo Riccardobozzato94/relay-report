@@ -1,0 +1,52 @@
+[
+  {
+    "id": "RR-01",
+    "input": { "cliente": "Studio Alfa", "sessioni": 18420, "sessioni_prec": 15900, "conversioni": 427, "spend": 3200 },
+    "expected": { "sessioni": "18420", "conversioni": "427", "cpa": "7.49", "flag": false }
+  },
+  {
+    "id": "RR-02",
+    "input": { "cliente": "Beta Srl", "sessioni": 9200, "sessioni_prec": 11000, "conversioni": 180, "spend": 2100 },
+    "expected": { "sessioni": "9200", "conversioni": "180", "cpa": "11.67", "flag": true }
+  },
+  {
+    "id": "RR-03",
+    "input": { "cliente": "Gamma Shop", "sessioni": 5400, "sessioni_prec": 5300, "conversioni": 95, "spend": 900 },
+    "expected": { "sessioni": "5400", "conversioni": "95", "cpa": "9.47", "flag": false }
+  },
+  {
+    "id": "RR-04",
+    "input": { "cliente": "Delta Coop", "sessioni": 22100, "sessioni_prec": 19800, "conversioni": 610, "spend": 4100 },
+    "expected": { "sessioni": "22100", "conversioni": "610", "cpa": "6.72", "flag": false }
+  },
+  {
+    "id": "RR-05",
+    "input": { "cliente": "Epsilon", "sessioni": 7300, "sessioni_prec": 8200, "conversioni": 120, "spend": 1800 },
+    "expected": { "sessioni": "7300", "conversioni": "120", "cpa": "15.00", "flag": true }
+  },
+  {
+    "id": "RR-06",
+    "input": { "cliente": "Zeta Lab", "sessioni": 15600, "sessioni_prec": 14000, "conversioni": 390, "spend": 2800 },
+    "expected": { "sessioni": "15600", "conversioni": "390", "cpa": "7.18", "flag": false }
+  },
+  {
+    "id": "RR-07",
+    "input": { "cliente": "Eta Store", "sessioni": 4100, "sessioni_prec": 4600, "conversioni": 70, "spend": 1100 },
+    "expected": { "sessioni": "4100", "conversioni": "70", "cpa": "15.71", "flag": true }
+  },
+  {
+    "id": "RR-08",
+    "input": { "cliente": "Theta Media", "sessioni": 31500, "sessioni_prec": 29000, "conversioni": 880, "spend": 5200 },
+    "expected": { "sessioni": "31500", "conversioni": "880", "cpa": "5.91", "flag": false }
+  },
+  {
+    "id": "RR-09",
+    "input": { "cliente": "Iota Group", "sessioni": 8800, "sessioni_prec": 9100, "conversioni": 155, "spend": 2400 },
+    "expected": { "sessioni": "8800", "conversioni": "155", "cpa": "15.48", "flag": true }
+  },
+  {
+    "id": "RR-10",
+    "input": { "cliente": "Kappa Shop", "sessioni": 12700, "sessioni_prec": 11900, "conversioni": 305, "spend": 2500 },
+    "expected": { "sessioni": "12700", "conversioni": "305", "cpa": "8.20", "flag": false }
+  }
+]

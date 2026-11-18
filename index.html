@@ -16,6 +16,8 @@
       <label>Conversioni</label><input id="c" type="number" value="427">
       <label>Spesa ads (€)</label><input id="s" type="number" value="3200">
       <button onclick="genera()">Prepara il report</button>
+      <button class="ghost" onclick="valuta()">Esegui i 10 test</button>
+      <p class="hint" id="esito"></p>
     </div>
 
     <div class="card accent">
@@ -48,5 +50,14 @@ function genera(){
 }
 function approva(){if(stato!=='draft')return;add('firmato da te','a');set('approved')}
 function invia(){if(stato!=='approved')return;add('inviato al cliente','a');set('sent')}
+const API='https://relay-report-api.YOUR_SUBDOMAIN.workers.dev';
+async function valuta(){
+  const e=document.getElementById('esito');e.textContent='Esecuzione dei 10 test in corso…';
+  try{
+    const r=await fetch(API+'/api/eval');const d=await r.json();
+    e.textContent=d.accuracy_percent+'% di accuratezza · '+d.passed_cases+'/10 casi perfetti · '+d.fallback_cases+' fallback · '+d.total_latency_ms+' ms';
+    add('test eseguiti: '+d.accuracy_percent+'%','a');
+  }catch(err){e.textContent='API non disponibile: i test restano nel codice del progetto.';add('API non raggiungibile','w')}
+}
 set('vuoto');
 </script></body></html>
