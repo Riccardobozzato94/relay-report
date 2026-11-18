@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RelayReport — demo (dati sintetici)</title>
+<link rel="stylesheet" href="style.css" />
+<script src="ai-data.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">Social proof · AI Operations · Demo 1/3</p>
+  <h1>RelayReport</h1>
+  <p class="sub">Reporting client per piccole agenzie. L'AI prepara la bozza dai KPI, l'umano approva, ogni passaggio finisce nel log. <strong>Il cliente non riceve nulla prima dell'approvazione.</strong></p>
+  <span class="badge">DEMO · DATI SINTETICI</span>
+  <span class="badge ok">0 € di costo</span>
+  <span class="badge">Flusso: bozza → approvazione → invio</span>
+  <span class="badge danger">AI REALE — output scartato dalla validazione</span>
+
+  <div class="grid cols-3" style="margin-top:22px">
+    <div class="card">
+      <h2>1 · KPI grezzi (fittizi)</h2>
+      <p class="kpi-label">Clienti / periodo</p>
+      <label>Cliente</label>
+      <select id="cliente">
+        <option>Studio Alfa — settembre</option>
+        <option>Beta Srl — settembre</option>
+        <option>Gamma Shop — settembre</option>
+      </select>
+      <label>Sessioni (questo mese)</label>
+      <input id="sessioni" type="number" value="18420" />
+      <label>Sessioni (mese scorso)</label>
+      <input id="sessioniPrec" type="number" value="15900" />
+      <label>Conversioni</label>
+      <input id="conv" type="number" value="427" />
+      <label>Spend ads (€)</label>
+      <input id="spend" type="number" value="3200" />
+      <button onclick="genera()">Genera bozza (simulata)</button>
+      <div class="note">La narrativa è generata da un template locale <em>simulato</em>: in produzione sarebbe Gemini free tier su JSON strutturato. Nessun numero viene inventato o modificato dall'AI.</div>
+    </div>
+
+    <div class="card accent">
+      <h2>2 · Bozza report</h2>
+      <p class="kpi-label">Stato</p>
+      <p><span class="state draft" id="stato">draft</span></p>
+      <label>Testo del report (modificabile dall'umano)</label>
+      <textarea id="bozza" placeholder="Premi 'Genera bozza' per vedere il flusso"></textarea>
+      <button class="ok" id="approva" disabled onclick="approva()">Approva e firma</button>
+      <button class="danger" id="scarta" disabled onclick="scarta()">Scarta</button>
+      <button class="ghost" id="invia" disabled onclick="invia()">Invia al cliente</button>
+    </div>
+
+    <div class="card">
+      <h2>3 · Audit log</h2>
+      <p class="kpi-label">Ogni azione è registrata</p>
+      <div class="log" id="log"><div class="t">— in attesa della prima azione —</div></div>
+      <div class="hr"></div>
+      <h3>Regola</h3>
+      <p style="font-size:12px;color:var(--slate)"><code>sent</code> è raggiungibile solo da <code>approved</code>. L'approvazione richiede un click esplicito con nome e timestamp.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Output AI reale — catturato dal router locale</h2>
+    <p class="kpi-label">Modello: <span id="aiModelRelay">—</span> · catturato il <span id="aiDateRelay">—</span></p>
+    <p style="font-size:12px;color:var(--slate)"><strong>Prompt inviato:</strong> <span id="aiPromptRelay" style="font-family:ui-monospace,monospace;font-size:11px"></span></p>
+    <div class="hr"></div>
+    <h3>Output grezzo del modello (ultimi caratteri)</h3>
+    <pre id="aiRawRelay" style="background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;max-height:180px;overflow:auto;color:var(--slate)"></pre>
+    <div class="note" id="aiNoteRelay"></div>
+    <p style="font-size:12px;color:var(--slate);margin-top:10px"><strong>Cosa dimostra:</strong> l'AI ha ragionato ed emesso lo <em>schema di esempio</em> invece del report. Un sistema senza validazione umana avrebbe inviato un report vuoto al cliente. La firma umana ha bloccato l'invio.</p>
+  </div>
+
+  <div class="card">
+    <h2>Architettura (quello che dimostra)</h2>
+    <div class="grid cols-3">
+      <div><h3>Cloudflare Worker + D1</h3><p style="font-size:12px;color:var(--slate)">Tabella <code>reports</code> con stato draft→approved→sent; tabella <code>audit_log</code> con attore, azione, timestamp e versione del testo.</p></div>
+      <div><h3>Google AI Studio · Gemini free</h3><p style="font-size:12px;color:var(--slate)">Genera solo la narrativa da KPI in JSON strutturato. Non tocca i numeri. Flagga i campi mancanti.</p></div>
+      <div><h3>Make free · ~1000 ops/mese</h3><p style="font-size:12px;color:var(--slate)">Cron settimanale → Worker → notifica all'umano con link di approvazione. Nessun invio automatico.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Limiti dichiarati</h2>
+    <p style="font-size:12px;color:var(--slate)">Questa demo usa dati interamente fittizi e una generazione simulata: dimostra <strong>il metodo e il flusso di approvazione</strong>, non un risultato commerciale. Nessun cliente reale è coinvolto. Il mini-audit su un'agenzia reale richiede consenso scritto, metodo e periodo prima di essere pubblicato (publication gate del sito).</p>
+  </div>
+
+  <p class="foot">PMP® · AI Operations · Umano che risponde · Logging · KPI — Demo pubblica su GitHub Pages (gratis). Nessuna automazione su Reddit.</p>
+</div>
+
+<script>
+var stato = 'vuoto';
+var log = [];
+function t() { return new Date().toISOString().slice(11,19); }
+function addLog(azione, attore, cls) {
+  log.push('<div><span class="t">' + t() + '</span> · <span class="' + cls + '">' + azione + '</span> · attore: ' + attore + '</div>');
+  document.getElementById('log').innerHTML = log.join('');
+}
+function setState(s) {
+  stato = s;
+  var el = document.getElementById('stato');
+  el.textContent = s;
+  el.className = 'state ' + (s === 'draft' ? 'draft' : s === 'approved' ? 'approved' : s === 'sent' ? 'sent' : '');
+  document.getElementById('approva').disabled = s !== 'draft';
+  document.getElementById('scarta').disabled = s !== 'draft';
+  document.getElementById('invia').disabled = s !== 'approved';
+}
+function genera() {
+  var client = document.getElementById('cliente').value;
+  var a = +document.getElementById('sessioni').value;
+  var b = +document.getElementById('sessioniPrec').value;
+  var c = +document.getElementById('conv').value;
+  var sp = +document.getElementById('spend').value;
+  var delta = b ? ((a - b) / b * 100).toFixed(1) : 'n/d';
+  var cpa = c ? (sp / c).toFixed(2) : 'n/d';
+  var text = 'REPORT ' + client + '\n\nSessioni: ' + a.toLocaleString('it-IT') + ' (' + (delta >= 0 ? '+' : '') + delta + '% vs mese scorso). ' +
+    'Conversioni: ' + c + '. Costo per conversione: ' + cpa + ' €.\n\n' +
+    'Cosa è cambiato: il traffico è aumentato, il costo per conversione va monitorato. ' +
+    'Prossimo passo: verificare la pagina di atterraggio con il team.';
+  document.getElementById('bozza').value = text;
+  addLog('bozza generata da KPI (simulazione)', 'sistema', 'w');
+  setState('draft');
+}
+function approva() {
+  if (stato !== 'draft') return;
+  addLog('bozza approvata e firmata', 'Riccardo (umano)', 'a');
+  setState('approved');
+}
+function scarta() {
+  if (stato !== 'draft') return;
+  addLog('bozza scartata — nessun invio', 'Riccardo (umano)', 'w');
+  document.getElementById('bozza').value = '';
+  setState('vuoto');
+}
+function invia() {
+  if (stato !== 'approved') return;
+  addLog('report inviato al cliente', 'Riccardo (umano)', 'a');
+  setState('sent');
+}
+setState('vuoto');
+(function(){
+  var d = window.AI_CAPTURED;
+  if (!d) return;
+  document.getElementById('aiModelRelay').textContent = d.model_relay;
+  document.getElementById('aiDateRelay').textContent = d.captured_at;
+  document.getElementById('aiPromptRelay').textContent = d.relay.prompt;
+  document.getElementById('aiRawRelay').textContent = d.relay.raw;
+  document.getElementById('aiNoteRelay').textContent = 'DECISIONE UMANA: ' + d.relay.status.toUpperCase() + ' — ' + d.relay.note;
+})();
+</script>
+</body>
+</html>
