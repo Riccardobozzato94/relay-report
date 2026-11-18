@@ -69,6 +69,14 @@
     <pre id="aiRawRelay" style="background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;max-height:180px;overflow:auto;color:var(--slate)"></pre>
     <div class="note" id="aiNoteRelay"></div>
     <p style="font-size:12px;color:var(--slate);margin-top:10px"><strong>Cosa dimostra:</strong> l'AI ha ragionato ed emesso lo <em>schema di esempio</em> invece del report. Un sistema senza validazione umana avrebbe inviato un report vuoto al cliente. La firma umana ha bloccato l'invio.</p>
+
+    <div class="hr"></div>
+    <h3>DOPO — prompt corretto, stesso modello, output valido</h3>
+    <p class="kpi-label">Modello: <span id="aiFixedModel">—</span> · catturato il <span id="aiFixedDate">—</span></p>
+    <p style="font-size:12px;color:var(--slate)"><strong>Prompt corretto:</strong> <span id="aiFixedPrompt" style="font-family:ui-monospace,monospace;font-size:11px"></span></p>
+    <div id="aiFixedOut" style="margin-top:10px"></div>
+    <div class="note" id="aiFixedNote"></div>
+    <p style="font-size:12px;color:var(--slate);margin-top:10px"><strong>Il miglioramento:</strong> non ho cambiato modello, ho cambiato <em>il prompt e la validazione</em>. Primo output scartato, secondo output accettato dopo rimozione del ragionamento finale. È la prova che il lavoro del PM non è "scrivere il prompt", è <strong>definire criteri di accettazione e verificarli</strong>.</p>
   </div>
 
   <div class="card">
@@ -146,6 +154,14 @@ setState('vuoto');
   document.getElementById('aiPromptRelay').textContent = d.relay.prompt;
   document.getElementById('aiRawRelay').textContent = d.relay.raw;
   document.getElementById('aiNoteRelay').textContent = 'DECISIONE UMANA: ' + d.relay.status.toUpperCase() + ' — ' + d.relay.note;
+  var f = d.relay_fixed;
+  if (!f) return;
+  document.getElementById('aiFixedModel').textContent = f.model;
+  document.getElementById('aiFixedDate').textContent = f.captured_at;
+  document.getElementById('aiFixedPrompt').textContent = f.prompt;
+  document.getElementById('aiFixedOut').innerHTML = (f.json && f.json.narrativa ? f.json.narrativa.map(function(s){ return '<p style="font-size:13px;margin:4px 0">• ' + s + '</p>'; }).join('') : '') +
+    (f.json && f.json.prossimo_passo ? '<p style="font-size:12px;color:var(--slate);margin-top:8px"><strong>Prossimo passo:</strong> ' + f.json.prossimo_passo + '</p>' : '');
+  document.getElementById('aiFixedNote').textContent = 'DECISIONE UMANA: ' + f.status.toUpperCase() + ' — ' + f.note;
 })();
 </script>
 </body>
