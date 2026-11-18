@@ -2,40 +2,41 @@
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RelayReport</title><link rel="stylesheet" href="style.css"></head>
 <body><div class="wrap">
-  <p class="kicker">Strumento 1</p>
-  <h1>RelayReport</h1>
-  <p class="sub">Prepara il report mensile per i tuoi clienti. Tu lo rileggi e lo firmi. Il cliente riceve solo quello che approvi.</p>
+  <p class="kicker">RelayReport — strumenti pubblici di <a href="https://riccardobozzato.com/">Riccardo Bozzato</a></p>
+  <h1>Il report che il cliente vede è quello che hai firmato.</h1>
+  <p class="sub">Inserisci i numeri del mese. Il sistema prepara una bozza con le cifre al posto giusto. Tu la rileggi, la firmi, e solo dopo la mandi. Non invia nulla al tuo posto.</p>
 
   <div class="grid cols-3" style="margin-top:18px">
     <div class="card">
-      <h2>1. Inserisci i numeri</h2>
-      <p class="hint">I dati sono di esempio. Cambiali pure.</p>
+      <h2>01 · I numeri</h2>
+      <p class="hint">Dati inventati. Cambiali pure.</p>
       <label>Cliente</label><select id="cliente"><option>Studio Alfa</option><option>Beta Srl</option><option>Gamma Shop</option></select>
       <label>Sessioni questo mese</label><input id="a" type="number" value="18420">
       <label>Sessioni mese scorso</label><input id="b" type="number" value="15900">
       <label>Conversioni</label><input id="c" type="number" value="427">
       <label>Spesa ads (€)</label><input id="s" type="number" value="3200">
       <button onclick="genera()">Prepara il report</button>
-      <button class="ghost" onclick="valuta()">Esegui i 10 test</button>
+      <button class="ghost" onclick="valuta()">Esegui i 10 test sul benchmark</button>
       <p class="hint" id="esito"></p>
     </div>
 
     <div class="card accent">
-      <h2>2. Rileggi e firma</h2>
-      <p class="hint"><span class="state draft" id="stato">bozza</span> — nessun invio prima della tua firma.</p>
+      <h2>02 · Rileggi e firma</h2>
+      <p class="hint"><span class="state draft" id="stato">bozza</span> — finché non firmi, la bozza non parte.</p>
       <textarea id="bozza" placeholder="Premi 'Prepara il report'"></textarea>
       <button class="ok" id="approva" disabled onclick="approva()">Firma</button>
       <button class="ghost" id="invia" disabled onclick="invia()">Invia al cliente</button>
     </div>
 
     <div class="card">
-      <h2>3. Cosa è successo</h2>
-      <p class="hint">Ogni passo resta registrato.</p>
+      <h2>03 · Registro</h2>
+      <p class="hint">Ogni passo resta scritto: chi ha firmato e quando.</p>
       <div class="log" id="log"><div class="t">—</div></div>
     </div>
   </div>
 
-  <p class="foot">Nessun dato reale. Nessun invio automatico. Funziona nel browser, senza installare nulla.</p>
+  <p class="foot">Dati sintetici dichiarati. Nessun invio automatico: "Invia al cliente" segna soltanto che hai spedito tu. Funziona nel browser, senza installare nulla.</p>
+  <p class="foot"><a href="https://github.com/Riccardobozzato94/relay-report">Codice su GitHub</a> · <a href="https://riccardobozzato.com/casi/delivery-copilot">Il sistema completo e i limiti</a> · <a href="https://riccardobozzato.com/contatti">Parliamone</a></p>
 </div>
 <script>
 var stato='vuoto', log=[];
@@ -50,7 +51,7 @@ function genera(){
 }
 function approva(){if(stato!=='draft')return;add('firmato da te','a');set('approved')}
 function invia(){if(stato!=='approved')return;add('inviato al cliente','a');set('sent')}
-const API='https://relay-report-api.YOUR_SUBDOMAIN.workers.dev';
+const API='https://relay-report-api.riccardobozzato.workers.dev';
 async function valuta(){
   const e=document.getElementById('esito');e.textContent='Esecuzione dei 10 test in corso…';
   try{
